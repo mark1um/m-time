@@ -1,24 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import { Container } from "@mui/material";
+import Grid from "@mui/material/Grid";
+
+import React, { useState } from "react";
+import CadastroAtividade from "./Components/CadastroAtividade/CadastroAtividade";
+import ListarAtividades from "./Components/ListarAtividades/ListarAtividades";
 
 function App() {
+  const [atividades, setAtividades] = useState([]);
+
+  const saveAtividades = (newAtividade) => {
+    const atvs = [...atividades];
+    atvs.push(newAtividade);
+    setAtividades(atvs);
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <CadastroAtividade onAddAtividades={saveAtividades} />
+      <ListarAtividades atividades={atividades} />
+    </Container>
   );
 }
 

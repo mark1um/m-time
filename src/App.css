@@ -1,7 +1,10 @@
 .App {
   text-align: center;
 }
-
+.MuiDateCalendar-root {
+  background-color: #61dafb;
+  width: 600px;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;

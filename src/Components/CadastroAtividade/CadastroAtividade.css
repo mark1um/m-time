@@ -1,0 +1,34 @@
+.relogios {
+  display: flex;
+  min-width: 200px;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.relogios .MuiTextField-root {
+  width: 45%;
+}
+.cadastroAtividade {
+  display: flex;
+  margin-top: 50px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 50%;
+}
+
+.diaSelecionado {
+  width: 91%;
+}
+
+.inputsAtividade {
+  display: flex;
+  flex-direction: column;
+  width: 91%;
+  gap: 5px;
+}
+.MuiDateCalendar-root {
+  width: 600px;
+}
