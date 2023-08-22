@@ -11,8 +11,8 @@ const CadastroAtividade = ({ onAddAtividades }) => {
   const maxDate = new Date("2031-01-01");
   const minDate = new Date("2021-01-01");
 
-  const [tituloAtividade, setTituloAtividade] = useState();
-  const [descricaoAtividade, setDescricaoAtividade] = useState();
+  const [tituloAtividade, setTituloAtividade] = useState("");
+  const [descricaoAtividade, setDescricaoAtividade] = useState("");
   const [dateSelected, setDateSelected] = useState(new Date());
   const [dataFormatada, setDataFormatada] = useState();
   const [horaInicial, setHoraInicial] = useState();
@@ -34,14 +34,15 @@ const CadastroAtividade = ({ onAddAtividades }) => {
   };
 
   const onSalvar = () => {
-    console.log(
-      "data:",
-      dataFormatada,
-      "hora I:",
-      horaInicial,
-      "hora F:",
-      horaFinal
-    );
+    if (horaFinal < horaInicial || !horaFinal || !horaInicial) {
+      console.log("error hora");
+    }
+    if (!tituloAtividade.trim().lenght || !descricaoAtividade.trim().lenght) {
+      console.log("error inputs");
+    }
+    if (!dataFormatada) {
+      console.log("error data");
+    }
     let obj = {
       tituloAtividade,
       descricaoAtividade,
@@ -49,6 +50,7 @@ const CadastroAtividade = ({ onAddAtividades }) => {
       dataFim: dataFormatada + " " + horaFinal,
       dataAtividade: dataFormatada,
     };
+
     onAddAtividades(obj);
   };
   return (
