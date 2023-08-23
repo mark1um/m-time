@@ -6,115 +6,123 @@ import { format } from "date-fns";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { useState } from "react";
 import "./CadastroAtividade.css";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { Controller, useForm } from "react-hook-form";
+
 const CadastroAtividade = ({ onAddAtividades }) => {
   const maxDate = new Date("2031-01-01");
   const minDate = new Date("2021-01-01");
 
-  const [tituloAtividade, setTituloAtividade] = useState("");
-  const [descricaoAtividade, setDescricaoAtividade] = useState("");
   const [dateSelected, setDateSelected] = useState(new Date());
-  const [dataFormatada, setDataFormatada] = useState();
-  const [horaInicial, setHoraInicial] = useState();
-  const [horaFinal, setHoraFinal] = useState();
-  const handleDate = (newDate) => {
-    const data = format(newDate, "dd-MM-yyyy");
-    setDataFormatada(data);
-    setDateSelected(newDate);
+  const [horaInicial, setHoraInicial] = useState(null);
+  const [horaFinal, setHoraFinal] = useState(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    console.log(data);
   };
 
-  const handleHoraInicial = (horaInicial) => {
-    const horaFormat = format(horaInicial, "HH:mm:ss");
-    setHoraInicial(horaFormat);
-  };
-
-  const handleHoraFinal = (horaFinal) => {
-    const horaFormat = format(horaFinal, "HH:mm:ss");
-    setHoraFinal(horaFormat);
-  };
-
-  const onSalvar = () => {
-    if (horaFinal < horaInicial || !horaFinal || !horaInicial) {
-      console.log("error hora");
-    }
-    if (!tituloAtividade.trim().lenght || !descricaoAtividade.trim().lenght) {
-      console.log("error inputs");
-    }
-    if (!dataFormatada) {
-      console.log("error data");
-    }
-    let obj = {
-      tituloAtividade,
-      descricaoAtividade,
-      dataInicio: dataFormatada + " " + horaInicial,
-      dataFim: dataFormatada + " " + horaFinal,
-      dataAtividade: dataFormatada,
-    };
-
-    onAddAtividades(obj);
-  };
   return (
-    <div className="cadastroAtividade">
-      <DateCalendar
-        views={["year", "month", "day"]}
-        onChange={(newValue) => handleDate(newValue)}
-        maxDate={maxDate}
-        minDate={minDate}
-      />
-
-      <div className="formulario">
-        <DatePicker
-          className="diaSelecionado"
-          label="Dia"
-          value={dateSelected}
-          readOnly
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="cadastroAtividade">
+        <Controller
+          name="diaSelecionado"
+          control={control}
+          defaultValue={dateSelected}
+          render={({ field: { onChange, value } }) => (
+            <DateCalendar
+              views={["year", "month", "day"]}
+              onChange={onChange}
+              value={value}
+              maxDate={maxDate}
+              minDate={minDate}
+            />
+          )}
         />
-        <div className="relogios">
-          <TimePicker
-            label="Inicio"
-            viewRenderers={{
-              hours: renderTimeViewClock,
-              minutes: renderTimeViewClock,
-              seconds: renderTimeViewClock,
-            }}
-            onChange={(newValue) => handleHoraInicial(newValue)}
+        <div className="formulario">
+          <DatePicker
+            className="diaSelecionado"
+            label="Dia"
+            defaultValue={dateSelected}
+            value={dateSelected}
+            readOnly
           />
+          <div className="relogios">
+            <Controller
+              name="horaInicial"
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { onChange, value } }) => (
+                <TimePicker
+                  label="Inicio"
+                  viewRenderers={{
+                    hours: renderTimeViewClock,
+                    minutes: renderTimeViewClock,
+                    seconds: renderTimeViewClock,
+                  }}
+                  onChange={onChange}
+                />
+              )}
+            />
 
-          <TimePicker
-            label="Fim"
-            viewRenderers={{
-              hours: renderTimeViewClock,
-              minutes: renderTimeViewClock,
-              seconds: renderTimeViewClock,
-            }}
-            onChange={(newValue) => handleHoraFinal(newValue)}
-          />
-        </div>
-
-        <div className="inputsAtividade">
-          <TextField
-            id="filled-basic"
-            label="Titulo"
-            variant="filled"
-            onChange={(event) => {
-              setTituloAtividade(event.target.value);
-            }}
-          />
-          <TextField
-            rows={4}
-            multiline
-            variant="filled"
-            label="Descrição"
-            onChange={(event) => {
-              setDescricaoAtividade(event.target.value);
-            }}
-          />
-          <Button variant="contained" onClick={onSalvar}>
-            Enviar
-          </Button>
+            <Controller
+              name="horaFinal"
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { onChange, value } }) => (
+                <TimePicker
+                  label="Fim"
+                  viewRenderers={{
+                    hours: renderTimeViewClock,
+                    minutes: renderTimeViewClock,
+                    seconds: renderTimeViewClock,
+                  }}
+                  onChange={onChange}
+                />
+              )}
+            />
+          </div>
+          <div className="inputsAtividade">
+            <Controller
+              name="titulo"
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  id="filled-basic"
+                  label="Titulo"
+                  variant="filled"
+                  onChange={onChange}
+                />
+              )}
+            />
+            <Controller
+              name="descricao"
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  rows={4}
+                  multiline
+                  variant="filled"
+                  label="Descrição"
+                  onChange={onChange}
+                />
+              )}
+            />
+          </div>
         </div>
       </div>
-    </div>
+      <Button onClick={handleSubmit} type="submit">
+        Enviar
+      </Button>
+    </form>
   );
 };
 
