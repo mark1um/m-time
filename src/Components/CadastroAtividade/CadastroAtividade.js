@@ -1,21 +1,22 @@
 import { Button, TextField } from "@mui/material";
 
 import { DateCalendar, DatePicker, TimePicker } from "@mui/x-date-pickers";
-
+import { Alert, Snackbar } from "@mui/material";
 import { format } from "date-fns";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import { useState } from "react";
 import "./CadastroAtividade.css";
 import { Controller, useForm } from "react-hook-form";
 
-const CadastroAtividade = ({ onAddAtividades }) => {
+const CadastroAtividade = ({ saveAtividades, openError }) => {
   const maxDate = new Date("2031-01-01");
   const minDate = new Date("2021-01-01");
 
   const [dateSelected, setDateSelected] = useState(new Date());
   const [horaInicial, setHoraInicial] = useState(null);
   const [horaFinal, setHoraFinal] = useState(null);
-
+  const [show, setShow] = useState(false);
+  const [messageSnack, setMessageSnack] = useState("Preencha Todos os campos");
   const {
     register,
     handleSubmit,
@@ -24,8 +25,42 @@ const CadastroAtividade = ({ onAddAtividades }) => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setShow(false);
+  };
+  const onSubmit = (atividadeForm) => {
+    if (
+      !atividadeForm.horaInicial ||
+      !atividadeForm.horaFinal ||
+      !atividadeForm.titulo ||
+      !atividadeForm.descricao
+    ) {
+      setShow(true);
+    } else if (atividadeForm.horaFinal < atividadeForm.horaInicial) {
+      setMessageSnack("A Hora Inicial maior que Hora Final");
+      setShow(true);
+    } else {
+      const dataSelecionada = format(
+        atividadeForm.diaSelecionado,
+        "dd-MM-yyyy"
+      );
+      const horaInicial = format(atividadeForm.horaInicial, "HH:mm:ss");
+      const horaFinal = format(atividadeForm.horaFinal, "HH:mm:ss");
+      let obj = {
+        titulo: atividadeForm.titulo,
+        descricao: atividadeForm.descricao,
+        dataInicio: dataSelecionada + " " + horaInicial,
+        dataFim: dataSelecionada + " " + horaFinal,
+        dataAtividade: dataSelecionada,
+      };
+
+      saveAtividades(obj);
+      console.log(obj);
+    }
   };
 
   return (
@@ -46,18 +81,10 @@ const CadastroAtividade = ({ onAddAtividades }) => {
           )}
         />
         <div className="formulario">
-          <DatePicker
-            className="diaSelecionado"
-            label="Dia"
-            defaultValue={dateSelected}
-            value={dateSelected}
-            readOnly
-          />
           <div className="relogios">
             <Controller
               name="horaInicial"
               control={control}
-              rules={{ required: true }}
               render={({ field: { onChange, value } }) => (
                 <TimePicker
                   label="Inicio"
@@ -74,7 +101,6 @@ const CadastroAtividade = ({ onAddAtividades }) => {
             <Controller
               name="horaFinal"
               control={control}
-              rules={{ required: true }}
               render={({ field: { onChange, value } }) => (
                 <TimePicker
                   label="Fim"
@@ -92,7 +118,6 @@ const CadastroAtividade = ({ onAddAtividades }) => {
             <Controller
               name="titulo"
               control={control}
-              rules={{ required: true }}
               render={({ field: { onChange, value } }) => (
                 <TextField
                   id="filled-basic"
@@ -105,7 +130,6 @@ const CadastroAtividade = ({ onAddAtividades }) => {
             <Controller
               name="descricao"
               control={control}
-              rules={{ required: true }}
               render={({ field: { onChange, value } }) => (
                 <TextField
                   rows={4}
@@ -116,12 +140,23 @@ const CadastroAtividade = ({ onAddAtividades }) => {
                 />
               )}
             />
+            <Button variant="contained" onClick={handleSubmit} type="submit">
+              Enviar
+            </Button>
           </div>
         </div>
       </div>
-      <Button onClick={handleSubmit} type="submit">
-        Enviar
-      </Button>
+
+      <Snackbar
+        open={show}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        onClose={handleClose}
+        autoHideDuration={3000}
+      >
+        <Alert severity="error" sx={{ width: "100%" }}>
+          {messageSnack}
+        </Alert>
+      </Snackbar>
     </form>
   );
 };

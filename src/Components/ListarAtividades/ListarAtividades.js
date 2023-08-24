@@ -24,7 +24,7 @@ const ListarAtividades = ({ atividades }) => {
           {atividades.map((atividade, index) => (
             <TableRow key={index}>
               <TableCell component="th" scope="row">
-                {atividade.tituloAtividade}
+                {atividade.titulo}
               </TableCell>
               <TableCell align="right">{atividade.dataAtividade}</TableCell>
               <TableCell align="right">teste</TableCell>
