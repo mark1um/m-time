@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import CadastroAtividade from "./Components/CadastroAtividade/CadastroAtividade";
 import ListarAtividades from "./Components/ListarAtividades/ListarAtividades";
 import TimePickerForm from "./ComponenteTeste";
+import Login from "./Components/Login/Login";
 
 function App() {
   const [atividades, setAtividades] = useState([]);
@@ -17,8 +18,9 @@ function App() {
 
   return (
     <Container>
-      <CadastroAtividade saveAtividades={saveAtividades} />
-      <ListarAtividades atividades={atividades} />
+      {/*       <CadastroAtividade saveAtividades={saveAtividades} />
+      <ListarAtividades atividades={atividades} /> */}
+      <Login />
     </Container>
   );
 }

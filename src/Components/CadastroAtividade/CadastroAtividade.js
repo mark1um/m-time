@@ -16,7 +16,10 @@ const CadastroAtividade = ({ saveAtividades, openError }) => {
   const [horaInicial, setHoraInicial] = useState(null);
   const [horaFinal, setHoraFinal] = useState(null);
   const [show, setShow] = useState(false);
-  const [messageSnack, setMessageSnack] = useState("Preencha Todos os campos");
+  const [avisoCadastro, setAvisoCadastro] = useState({
+    mensagem: "Preencha Todos os Campos",
+    value: "error",
+  });
   const {
     register,
     handleSubmit,
@@ -41,7 +44,10 @@ const CadastroAtividade = ({ saveAtividades, openError }) => {
     ) {
       setShow(true);
     } else if (atividadeForm.horaFinal < atividadeForm.horaInicial) {
-      setMessageSnack("A Hora Inicial maior que Hora Final");
+      setAvisoCadastro({
+        message: "A Hora Inicial maior que Hora Final",
+        value: "error",
+      });
       setShow(true);
     } else {
       const dataSelecionada = format(
@@ -57,7 +63,11 @@ const CadastroAtividade = ({ saveAtividades, openError }) => {
         dataFim: dataSelecionada + " " + horaFinal,
         dataAtividade: dataSelecionada,
       };
-
+      setAvisoCadastro({
+        mensagem: "Cadastrado com sucesso",
+        value: "success",
+      });
+      setShow(true);
       saveAtividades(obj);
       console.log(obj);
     }
@@ -151,10 +161,9 @@ const CadastroAtividade = ({ saveAtividades, openError }) => {
         open={show}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         onClose={handleClose}
-        autoHideDuration={3000}
-      >
-        <Alert severity="error" sx={{ width: "100%" }}>
-          {messageSnack}
+        autoHideDuration={3000}>
+        <Alert severity={avisoCadastro.value} sx={{ width: "100%" }}>
+          {avisoCadastro.mensagem}
         </Alert>
       </Snackbar>
     </form>
