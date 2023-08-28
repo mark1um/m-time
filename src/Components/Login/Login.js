@@ -3,16 +3,17 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
+
 import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
+
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/auth";
 function Copyright(props) {
   return (
     <Typography
@@ -33,15 +34,17 @@ function Copyright(props) {
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
+const Login = () => {
+  const { autenticado, login, isLogado } = useContext(AuthContext);
 
-export default function Login() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
+    const newUser = {
+      login: data.get("login"),
       password: data.get("password"),
-    });
+    };
+    login(data.get("login"), data.get("password"));
   };
 
   return (
@@ -61,19 +64,15 @@ export default function Login() {
           <Typography component="h1" variant="h5">
             M-Time
           </Typography>
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
               fullWidth
               id="email"
               label="Usuario"
-              name="email"
-              autoComplete="email"
+              name="login"
+              autoComplete="usuario"
               autoFocus
             />
             <TextField
@@ -99,4 +98,6 @@ export default function Login() {
       </Container>
     </ThemeProvider>
   );
-}
+};
+
+export default Login;

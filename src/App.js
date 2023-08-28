@@ -1,11 +1,10 @@
-import { Alert, Container, Snackbar } from "@mui/material";
-import Grid from "@mui/material/Grid";
+import { Container } from "@mui/material";
 
 import React, { useEffect, useState } from "react";
 import CadastroAtividade from "./Components/CadastroAtividade/CadastroAtividade";
 import ListarAtividades from "./Components/ListarAtividades/ListarAtividades";
-import TimePickerForm from "./ComponenteTeste";
 import Login from "./Components/Login/Login";
+import AppRoutes from "./AppRoutes";
 
 function App() {
   const [atividades, setAtividades] = useState([]);
@@ -20,7 +19,7 @@ function App() {
     <Container>
       {/*       <CadastroAtividade saveAtividades={saveAtividades} />
       <ListarAtividades atividades={atividades} /> */}
-      <Login />
+      <AppRoutes />
     </Container>
   );
 }
