@@ -1,27 +1,22 @@
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "./Components/Login/Login";
 
 import { AuthProvider, AuthContext } from "./contexts/auth";
-import ListarAtividades from "./Components/ListarAtividades/ListarAtividades";
-import { useContext, useState } from "react";
+import { useContext, useEffect } from "react";
 import CadastroAtividade from "./Components/CadastroAtividade/CadastroAtividade";
-
+import Header from "./Components/Header/Header";
 const AppRoutes = () => {
   const Private = ({ children }) => {
-    const { autenticado } = useContext(AuthContext);
-
-    if (!autenticado) {
-      return <Navigate to="/" />;
+    const { autenticado, loading, isLogado } = useContext(AuthContext);
+    if (loading) {
+      return <h1>Carregando...</h1>;
     }
-    return children;
+    return autenticado ? children : <Navigate to={"/"} />;
   };
+
   return (
     <AuthProvider>
+      <Header />
       <Routes>
         <Route exact path="/" element={<Login />} />
         <Route

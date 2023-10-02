@@ -7,3 +7,11 @@ export const api = axios.create({
 export const createSession = async (login, password) => {
   return api.post("/auth/login", { login, password });
 };
+
+export const getAllAtividades = async () => {
+  return api.get("/atividade");
+};
+
+export const usuarioAutenticado = () => {
+  return localStorage.getItem("token") !== undefined ? true : false;
+};

@@ -13,9 +13,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBR}>
-        <Container>
-          <AppRoutes />
-        </Container>
+        <AppRoutes />
       </LocalizationProvider>
     </BrowserRouter>
   </React.StrictMode>

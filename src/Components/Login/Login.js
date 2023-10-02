@@ -14,6 +14,9 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/auth";
+
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 function Copyright(props) {
   return (
     <Typography
@@ -35,8 +38,8 @@ function Copyright(props) {
 
 const defaultTheme = createTheme();
 const Login = () => {
-  const { autenticado, login, isLogado } = useContext(AuthContext);
-
+  const { autenticado, login, isLogado, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -47,6 +50,11 @@ const Login = () => {
     login(data.get("login"), data.get("password"));
   };
 
+  useEffect(() => {
+    if (autenticado) {
+      return navigate("/cadastrar");
+    }
+  });
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">

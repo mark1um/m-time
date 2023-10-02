@@ -1,23 +1,25 @@
 import { Button, TextField } from "@mui/material";
 
-import { DateCalendar, DatePicker, TimePicker } from "@mui/x-date-pickers";
+import { DateCalendar, TimePicker } from "@mui/x-date-pickers";
 import { Alert, Snackbar } from "@mui/material";
 import { format } from "date-fns";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import "./CadastroAtividade.css";
 import { Controller, useForm } from "react-hook-form";
 import ListarAtividades from "../ListarAtividades/ListarAtividades";
+import { api } from "../../services/api";
+import { AuthContext } from "../../contexts/auth";
 
 const CadastroAtividade = ({ openError }) => {
   const maxDate = new Date("2031-01-01");
   const minDate = new Date("2021-01-01");
-
+  const { user } = useContext(AuthContext);
   const [dateSelected, setDateSelected] = useState(new Date());
   const [horaInicial, setHoraInicial] = useState(null);
   const [horaFinal, setHoraFinal] = useState(null);
   const [show, setShow] = useState(false);
-  const [avisoCadastro, setAvisoCadastro] = useState({
+  const [avisoSnack, setAvisoSnack] = useState({
     message: "Preencha Todos os Campos",
     value: "error",
   });
@@ -27,15 +29,26 @@ const CadastroAtividade = ({ openError }) => {
     reset,
     control,
     formState,
+    watch,
     formState: { errors, isSubmitSuccessful },
   } = useForm();
 
   const [atividades, setAtividades] = useState([]);
+  const [atividadesDoDia, setAtividadesDoDia] = useState([]);
+  const watchedValues = watch();
 
-  const saveAtividades = (newAtividade) => {
-    const atvs = [...atividades];
-    atvs.push(newAtividade);
-    setAtividades(atvs);
+  const getAllAtividades = async () => {
+    const atividadesAPI = await api.get(`/atividade/${user}`);
+    const { data } = atividadesAPI;
+    const atividadesAPInew = data.map((atividade) => {
+      let dataAtividade = new Date(atividade.data_atividade);
+      let dataAtividadeFormatada = format(dataAtividade, "dd-MM-yyyy");
+      return {
+        ...atividade,
+        data_atividade: dataAtividadeFormatada,
+      };
+    });
+    setAtividades(atividadesAPInew);
   };
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -44,51 +57,88 @@ const CadastroAtividade = ({ openError }) => {
 
     setShow(false);
   };
-  const onSubmit = (atividadeForm) => {
+  const onSubmit = async (atividadeForm) => {
     if (
       !atividadeForm.horaInicial ||
       !atividadeForm.horaFinal ||
       !atividadeForm.titulo ||
       !atividadeForm.descricao
     ) {
-      setAvisoCadastro({
+      setAvisoSnack({
         message: "Preencha Todos os Campos",
         value: "error",
       });
       setShow(true);
     } else if (atividadeForm.horaFinal < atividadeForm.horaInicial) {
-      setAvisoCadastro({
+      setAvisoSnack({
         message: "A Hora Inicial maior que Hora Final",
         value: "error",
       });
-      console.log(avisoCadastro);
       setShow(true);
     } else {
       const dataSelecionada = format(
         atividadeForm.diaSelecionado,
         "dd-MM-yyyy"
       );
-      setDateSelected(atividadeForm.diaSelecionado);
+      setDateSelected(dataSelecionada);
       const horaInicial = format(atividadeForm.horaInicial, "HH:mm:ss");
       const horaFinal = format(atividadeForm.horaFinal, "HH:mm:ss");
+      const horasAtividade =
+        (atividadeForm.horaFinal - atividadeForm.horaInicial) /
+        (1000 * 60 * 60);
       const user = JSON.parse(localStorage.getItem("user"));
+
+      let data_inicio = format(
+        atividadeForm.horaInicial,
+        "yyyy-MM-dd'T'HH:mm:ss"
+      );
+      let data_fim = format(atividadeForm.horaFinal, "yyyy-MM-dd'T'HH:mm:ss");
+      let data_atividade = format(
+        atividadeForm.diaSelecionado,
+        "yyyy-MM-dd'T'HH:mm:ss"
+      );
       let newAtividade = {
-        user,
+        usuario_id: user,
         titulo: atividadeForm.titulo,
         descricao: atividadeForm.descricao,
-        dataInicio: dataSelecionada + " " + horaInicial,
-        dataFim: dataSelecionada + " " + horaFinal,
-        dataAtividade: dataSelecionada,
+        data_inicio,
+        data_fim,
+        data_atividade,
+        horas: horasAtividade,
       };
-      setAvisoCadastro({
+      console.log(newAtividade);
+      setAvisoSnack({
         message: "Cadastrado com sucesso",
         value: "success",
       });
       setShow(true);
-      saveAtividades(newAtividade);
+
+      await api.post("/atividade", newAtividade);
     }
     reset({ horaInicial: null, horaFinal: null });
   };
+
+  useEffect(() => {
+    const tokenDefault = localStorage.getItem("token");
+
+    api.defaults.headers.Authorization = `Bearer ${tokenDefault}`;
+  }, []);
+
+  useEffect(() => {
+    getAllAtividades();
+  }, [avisoSnack]);
+
+  useEffect(() => {
+    let dataAtualSelecionada = new Date();
+    dataAtualSelecionada = format(dataAtualSelecionada, "dd-MM-yyyy");
+    if (watchedValues.diaSelecionado) {
+      dataAtualSelecionada = format(watchedValues.diaSelecionado, "dd-MM-yyyy");
+    }
+    const atividadeDia = atividades.filter(
+      (atividade) => atividade.data_atividade === dataAtualSelecionada
+    );
+    setAtividadesDoDia(atividadeDia);
+  }, [watchedValues.diaSelecionado]);
 
   return (
     <>
@@ -112,6 +162,7 @@ const CadastroAtividade = ({ openError }) => {
               <Controller
                 name="horaInicial"
                 control={control}
+                defaultValue={null}
                 render={({ field }) => (
                   <TimePicker
                     label="Inicio"
@@ -128,6 +179,7 @@ const CadastroAtividade = ({ openError }) => {
               <Controller
                 name="horaFinal"
                 control={control}
+                defaultValue={null}
                 render={({ field }) => (
                   <TimePicker
                     label="Fim"
@@ -181,11 +233,14 @@ const CadastroAtividade = ({ openError }) => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         onClose={handleClose}
         autoHideDuration={3000}>
-        <Alert severity={avisoCadastro.value} sx={{ width: "100%" }}>
-          {avisoCadastro.message}
+        <Alert severity={avisoSnack.value} sx={{ width: "100%" }}>
+          {avisoSnack.message}
         </Alert>
       </Snackbar>
-      <ListarAtividades atividades={atividades} />
+      <ListarAtividades
+        atividades={atividadesDoDia}
+        setAvisoSnack={setAvisoSnack}
+      />
     </>
   );
 };
